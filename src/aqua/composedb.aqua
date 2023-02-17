@@ -1,0 +1,175 @@
+import Peer, PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/registry/resources-api.aqua"
+import "@fluencelabs/registry/registry-service.aqua"
+
+import "./types.aqua"
+
+service CdbProviderSrv("CdbProviderSrv"):
+    init(namespace: string, n: string) -> string
+    details(cid: string) -> CdbProviderDetails
+    deploy_index(provider_cid: string, schema: string, owner: string) -> []string
+
+service CdbIndexSrv("CdbIndexSrv"):
+
+    details(cid: string) -> CdbIndex
+    detailz(cid: string) -> string
+    init(namespace: string, n: string, indexes: string, pk: string) -> string
+    query(cid: string, definition: string, query: string) -> CdbResult
+    mutate(cid: string, definition: string, query: string, session: string) -> CdbResult
+
+func cdbInit(resource_id: ResourceId, peer_id: PeerId, service_id: ?string, namespace: string, n: string, indexes: string, pk: string) -> string, bool, *Error:
+
+    on peer_id: 
+
+        CdbIndexSrv service_id!
+        -- store contractor details on ipfs and return cid
+        cid <- CdbIndexSrv.init(namespace, n, indexes, pk)
+        success, errors <- registerService(resource_id, cid, peer_id, service_id)
+   
+    <- cid, success, errors
+
+func cdbInitProvider(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, namespace: string, n: string) -> string, bool, *Error:
+
+    on peer_id: 
+        CdbProviderSrv service_id!
+        -- store contractor details on ipfs and return cid
+        cid <- CdbProviderSrv.init(namespace, n)
+        success, errors <- registerService(resource_id, cid, peer_id, service_id)
+   
+    <- cid, success, errors
+
+func cdbReregister(peer_id: PeerId, service_id: ?string, cid: string) -> bool, *Error:
+
+    resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
+    on peer_id: 
+        success, errors <- registerService(resource_id, cid, peer_id, service_id)
+
+    <- success, errors
+
+
+
+func cdbConfirmAvailability(peer_id: PeerId, cid: string, service_id: ?string) :
+
+    resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
+
+    on peer_id: 
+        registerService(resource_id, cid, peer_id, service_id)
+
+
+func cdbIndexDetails(peer_id: string, service_id: string, cid: string) -> *string, bool, CdbIndex:
+
+    status: *string
+    error: *string
+    success: *bool
+    values: *CdbIndex
+     
+    on peer_id:
+
+        CdbIndexSrv service_id
+        values <- CdbIndexSrv.details(cid)
+        status <<- "ok"
+
+    par status <- Peer.timeout(3000, "timeout") 
+
+    if status! == "timeout":
+        success <<- false
+        error <<- status! 
+    else: 
+        success <<- true
+
+    <- error, success!, values!
+
+func cdbProviderDetails(peer_id: string, service_id: string, cid: string) -> *string, bool, CdbProviderDetails:
+
+    status: *string
+    error: *string
+    success: *bool
+    values: *CdbProviderDetails
+     
+    on peer_id:
+
+        CdbProviderSrv service_id
+        values <- CdbProviderSrv.details(cid)
+        status <<- "ok"
+
+    par status <- Peer.timeout(3000, "timeout") 
+
+    if status! == "timeout":
+        success <<- false
+        error <<- status! 
+    else: 
+        success <<- true
+
+    <- error, success!, values!
+
+func cdbQuery(node: string, service_id: string, contractor_cid: string, definition: string, query: string) -> *string, bool, CdbResult:
+
+    status: *string
+
+    error: *string
+    success: *bool
+    values: *CdbResult
+
+    on node:
+
+        CdbIndexSrv service_id
+        values <- CdbIndexSrv.query(contractor_cid, definition, query)
+        status <<- "ok"
+
+    par status <- Peer.timeout(20000, "timeout") 
+
+    if status! == "timeout":
+        success <<- false
+        error <<- status! 
+    else: 
+        success <<- true
+
+    <- error, success!, values!
+
+func cdbMutate(node: string, service_id: string, cid: string, definition: string, query: string, session: string) -> *string, bool, CdbResult:
+
+    status: *string
+
+    error: *string
+    success: *bool
+    values: *CdbResult
+
+    on node:
+
+        CdbIndexSrv service_id
+        values <- CdbIndexSrv.mutate(cid, definition, query, session)
+        status <<- "ok"
+
+    par status <- Peer.timeout(20000, "timeout") 
+
+    if status! == "timeout":
+        success <<- false
+        error <<- status! 
+    else: 
+        success <<- true
+
+    <- error, success!, values! 
+
+func cdbCreateIndex(provider_resource_id: ResourceId, index_resource_id: ResourceId, peer_id: PeerId, provider_service_id: ?string, index_service_id: ?string, provider_cid: string, schema: string, owner: string) -> []string, bool, *Error, bool, *Error:
+
+   --  provider, creator, user 
+
+    cids: *[]string
+
+    on peer_id: 
+
+        CdbProviderSrv provider_service_id!
+        -- store contractor details on ipfs and return cid
+        cids <- CdbProviderSrv.deploy_index(provider_cid, schema, owner)
+        -- reregister ddbaas provider with new index 
+        success, errors <- registerService(provider_resource_id, cids![0], peer_id, provider_service_id)
+        -- register index 
+        isuccess, ierrors <- registerService(index_resource_id, cids![1], peer_id, index_service_id)
+   
+    <- cids!, success, errors, isuccess, ierrors
+
+
+
+
+
+
