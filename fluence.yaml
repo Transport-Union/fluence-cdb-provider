@@ -5,7 +5,7 @@
 # Documentation: https://github.com/fluencelabs/fluence-cli/tree/main/docs/configs/fluence.md
 
 version: 2
-aquaInputPath: src/aqua/main.aqua
+aquaInputPath: aqua/main.aqua
 dependencies:
   npm:
     "@fluencelabs/aqua-lib": 0.6.0
