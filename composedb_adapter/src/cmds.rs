@@ -66,8 +66,8 @@ fn create_from_schema() -> String  {
     String::from("kip")
 }
 
-// #[marine]
-// #[link(wasm_import_module = "host")]
-// extern "C" {
-//     pub fn tu_cdb(cmd: Vec<String>) -> MountedBinaryResult;
-// }
+#[marine]
+#[link(wasm_import_module = "host")]
+extern "C" {
+    pub fn tu_cdb(cmd: Vec<String>) -> MountedBinaryResult;
+}
