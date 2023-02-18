@@ -8,7 +8,7 @@ name = "config"
 path = "src/main.rs"
 
 [dependencies]
-tu_cdb_types = { path = "/home/joera/Documents/transport-union/fluence_composedb/fluence/tu_cdb_provider/types" }
+tu_cdb_types = { path = "../../types" }
 marine-rs-sdk = "0.7.1"
 serde_json = "1.0.91"
 

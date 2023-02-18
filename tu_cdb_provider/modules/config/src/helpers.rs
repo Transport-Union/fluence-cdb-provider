@@ -10,7 +10,7 @@ pub fn ceramic_url(cid: &String) -> String {
     
     } else {
         
-        let details : Vec<ProviderDetails> = crate::provider_details(cid);
+        let details : Vec<ProviderDetails> = crate::m_provider_details(cid);
         let d = &details[0].composedb.directions;
         url = format!("http://{}{}_ceramic:{}", d.namespace, d.n, d.ceramic_port);
     }

@@ -10,21 +10,21 @@ pub mod helpers;
 pub fn main() {}
 
 #[marine]
-pub fn init(namespace: &String, n: &String) -> String {
+pub fn m_init(namespace: &String, n: &String) -> String {
     config::init(namespace, n)
 }
 
 #[marine]
-pub fn index_details(cid: &String) -> Vec<CdbIndex> {
+pub fn m_index_details(cid: &String) -> Vec<CdbIndex> {
     config::index_details(cid)
 }
 
 #[marine]
-pub fn provider_details(cid: &String) -> Vec<ProviderDetails> {
+pub fn m_provider_details(cid: &String) -> Vec<ProviderDetails> {
     config::provider_details(cid)
 }
 
 #[marine]
-pub fn ceramic_url(cid: &String) -> String {
+pub fn m_ceramic_url(cid: &String) -> String {
     helpers::ceramic_url(cid)
 } 

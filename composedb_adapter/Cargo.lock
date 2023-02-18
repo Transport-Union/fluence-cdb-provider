@@ -158,6 +158,7 @@ dependencies = [
  "marine-rs-sdk",
  "marine-rs-sdk-test",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
