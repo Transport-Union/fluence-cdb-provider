@@ -19,3 +19,6 @@ Making sure all modules are downloaded and built... !
         trailing characters at line 1 column 187
     Debug info:
     /home/joera/.fluence/cargo/marine/0.12.6/bin/marine build --release
+    
+    
+    nfejfnejfnejfnejf
